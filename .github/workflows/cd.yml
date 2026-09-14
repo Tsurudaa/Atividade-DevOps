@@ -1,0 +1,39 @@
+name: Continuous Delivery
+
+on:
+  push:
+    branches:
+      - main
+      - feature/ci-cd
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  delivery:
+    name: Package Application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate application
+        run: python -m py_compile calculator.py
+
+      - name: Create delivery package
+        run: |
+          mkdir release
+          cp calculator.py release/
+          cp README.md release/
+
+      - name: Upload delivery artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: calculator-release
+          path: release/
