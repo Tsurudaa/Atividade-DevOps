@@ -1,0 +1,32 @@
+name: Discord Alert
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  discord-notification:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Enviar alerta para o Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          REPOSITORY: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          COMMIT_URL: ${{ github.event.head_commit.url }}
+        run: |
+          PAYLOAD=$(jq -n \
+            --arg repository "$REPOSITORY" \
+            --arg actor "$ACTOR" \
+            --arg message "$COMMIT_MESSAGE" \
+            --arg url "$COMMIT_URL" \
+            '{
+              content: "🚀 **Novo commit na main!**\n📦 Repositório: \($repository)\n👤 Autor: \($actor)\n📝 Commit: \($message)\n🔗 \($url)"
+            }')
+
+          curl -H "Content-Type: application/json" \
+               -d "$PAYLOAD" \
+               "$DISCORD_WEBHOOK"
