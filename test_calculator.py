@@ -15,3 +15,7 @@ def test_multiplicar():
 
 def test_dividir():
     assert dividir(10, 2) == 5
+
+
+def test_dividir_decimal():
+    assert dividir(5, 2) == 2.5
